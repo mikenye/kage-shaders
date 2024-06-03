@@ -1,6 +1,6 @@
 # Kage Shaders
 
-This is a collection of Kage shaders I've created.
+This is a collection of [Kage](https://ebitengine.org/en/documents/shader.html) shaders I've created.
 
 I'm new to this, so there's probably lots of room for optimisation.
 
