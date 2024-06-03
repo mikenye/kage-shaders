@@ -1,0 +1,58 @@
+//go:build ignore
+
+//kage:unit pixels
+
+// Surrounds img0 in a gradient border of width BorderSize and colour BorderColor.
+// Border is disabled if BorderEnable == 0.
+
+package main
+
+// Size of border in pixels
+const BorderSize float = 8
+
+// Colour of the border in R, G, B, A
+var BorderColor vec4
+
+// 0 disables border. Any other value enables.
+var BorderEnable int
+
+func Fragment(dstPos vec4, srcPos vec2, _ vec4) vec4 {
+
+	// get the colour of the sprite at this pixel
+	col := imageSrc0At(srcPos.xy)
+
+	// if border not enabled, then return sprite colour
+	if BorderEnable == 0 {
+		return col
+	}
+
+	// if the colour isn't completely transparent
+	// then return the colour, as this pixel is inside the sprite
+	if col.a != 0 {
+		return col
+	}
+
+	// define the distance to a sprite pixel.
+	// this is defined as greater than the border size
+	d := BorderSize + 1
+
+	// check surrounding pixels
+	for y := -BorderSize; y <= BorderSize; y++ {
+		for x := -BorderSize; x <= BorderSize; x++ {
+
+			// define pixel to check
+			p := vec2(srcPos.x+x, srcPos.y+y)
+
+			// if pixel has alpha, then must be part of sprite
+			if imageSrc0At(p).a > 0 {
+
+				// determine distance to sprite pixel
+				d = min(abs(distance(srcPos, p)), d)
+			}
+		}
+	}
+
+	// smooth scale between 0-1, and scale the border colour accordingly
+	col = BorderColor * smoothstep(BorderSize, 0, d)
+	return col
+}
